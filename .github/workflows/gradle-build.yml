@@ -14,6 +14,9 @@ on:
       DISCORD_WEBHOOK:
         description: "The discord webhook to post status to"
         required: true
+      GRADLE_PROPERTIES:
+        description: "The contents of the gradle.properties file with credentials for the repo"
+        required: true
 
 jobs:
   build:
