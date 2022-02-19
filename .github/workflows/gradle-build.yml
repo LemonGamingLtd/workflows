@@ -10,6 +10,10 @@ on:
       artifact_folders:
         type: string
         required: true
+    secrets:
+      DISCORD_WEBHOOK:
+        description: "The discord webhook to post status to"
+        required: true
 
 jobs:
   build:
