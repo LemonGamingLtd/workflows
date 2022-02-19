@@ -35,7 +35,7 @@ jobs:
 
     - name: Build
       run: |
-       ./mvnw install deploy
+       ./mvnw --settings ~/.m2/settings.xml install deploy
 
     - name: Move Artifacts
       env:
