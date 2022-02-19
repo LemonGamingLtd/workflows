@@ -25,17 +25,17 @@ jobs:
         java-version: '${{inputs.java_version}}'
         distribution: 'adopt'
 
-    - name: Restore maven settings.xml
+    - name: Restore gradle.properties
       env:
-        MAVEN_SETTINGS: ${{ secrets.MAVEN_SETTINGS }}
+        GRADLE_PROPERTIES: ${{ secrets.GRADLE_PROPERTIES }}
       shell: bash
       run: |
-        mkdir -p ~/.m2/
-        echo "${MAVEN_SETTINGS}" > ~/.m2/settings.xml
+        mkdir -p ~/.gradle/
+        echo "${GRADLE_PROPERTIES}" > ~/.gradle/gradle.properties
 
     - name: Build
       run: |
-       ./mvnw install deploy
+        ./gradlew build publish --stacktrace --gradle-user-home ~/.gradle/
 
     - name: Move Artifacts
       env:
@@ -43,14 +43,21 @@ jobs:
       run: |
         mkdir artifacts
         for f in $FOLDERS;
-          ls $f/*.jar | grep -v '^original' | xargs cp -t artifacts
+          if ls $f/build/libs/*-all.jar 1> /dev/null 2>&1; then
+            # using shadow, only take the *-all.jar files
+            cp $f/build/libs/*-all.jar artifacts/
+            rename.ul -- "-all.jar" ".jar" artifacts/* # remove -all from the end of the jar names
+          else
+            # not using shadow, take any jar
+            cp $f/build/libs/*.jar artifacts/
+          fi
         done
 
     - name: Extract Build Variables
       id: extract_variables
       run: |
         echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        echo "##[set-output name=project_version;]$(./mvnw -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)"
+        echo "##[set-output name=project_version;]$(./gradlew properties -q | grep "version:" | awk '{print $2}')"
 
     - name: Release
       uses: softprops/action-gh-release@v1
