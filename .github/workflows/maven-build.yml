@@ -49,7 +49,7 @@ jobs:
         FOLDERS: ${{inputs.artifact_folders}}
       run: |
         mkdir artifacts
-        for f in $FOLDERS;
+        for f in $FOLDERS; do
           ls $f/*.jar | grep -v '^original' | xargs cp -t artifacts
         done
 
