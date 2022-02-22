@@ -50,7 +50,9 @@ jobs:
       run: |
         mkdir artifacts
         for f in $FOLDERS; do
-          ls $f/target/*.jar | grep -v '^original' | xargs cp -t artifacts || true
+          pushd $f/target
+          ls *.jar | grep -v '^original' | xargs cp -t artifacts || true
+          popd
         done
 
     - name: Extract Build Variables
