@@ -42,7 +42,7 @@ jobs:
 
     - name: Build
       run: |
-       ./mvnw install deploy
+       ./mvnw install deploy --update-snapshots
 
     - name: Move Artifacts
       env:
