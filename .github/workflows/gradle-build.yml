@@ -25,6 +25,8 @@ jobs:
       contents: write
 
     steps:
+    - name: Clean Workspace
+    - uses: AutoModality/action-clean@v1.1.0
     - uses: actions/checkout@v2
     - name: Set up JDK ${{inputs.java_version}}
       uses: actions/setup-java@v2
