@@ -7,6 +7,10 @@ on:
         type: string
         required: false
         default: '17'
+      runs_on:
+        type: string
+        required: false
+        default: 'self-hosted'
       artifact_folders:
         type: string
         required: true
@@ -20,7 +24,7 @@ on:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ${{inputs.runs_on}}
     permissions:
       contents: write
 
