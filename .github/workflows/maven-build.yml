@@ -79,6 +79,19 @@ jobs:
         tag_name: "build-${{ github.run_number }}"
         files: artifacts/*
         draft: true
+        
+    - name: Release Publish
+      uses: softprops/action-gh-release@v1
+      if:
+        contains('
+          refs/heads/main
+          refs/heads/master
+        ', github.ref)
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        name: "${{ steps.extract_variables.outputs.branch }}-${{ steps.extract_variables.outputs.project_version }}-${{ github.run_number }}"
+        tag_name: "build-${{ github.run_number }}"
 
     - name: Actions Status Discord
       uses: sarisia/actions-status-discord@v1.8.6
