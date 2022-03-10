@@ -78,6 +78,7 @@ jobs:
         name: "${{ steps.extract_variables.outputs.branch }}-${{ steps.extract_variables.outputs.project_version }}-${{ github.run_number }}"
         tag_name: "build-${{ github.run_number }}"
         files: artifacts/*
+        draft: true
 
     - name: Actions Status Discord
       uses: sarisia/actions-status-discord@v1.8.6
