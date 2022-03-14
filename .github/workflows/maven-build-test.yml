@@ -63,7 +63,7 @@ jobs:
         echo "##[set-output name=project_version;]$(./mvnw -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)"
     - name: Create Draft Release
       uses: softprops/action-gh-release@v1
-      id: create-release
+      id: create_release
       if:
         contains('
           refs/heads/main
