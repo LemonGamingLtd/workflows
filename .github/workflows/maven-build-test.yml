@@ -61,7 +61,7 @@ jobs:
       run: |
         echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         echo "##[set-output name=project_version;]$(./mvnw -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)"
-    - name: Release
+    - name: Draft Release
       uses: softprops/action-gh-release@v1
       if:
         contains('
@@ -73,7 +73,20 @@ jobs:
       with:
         name: "${{ steps.extract_variables.outputs.branch }}-${{ steps.extract_variables.outputs.project_version }}-${{ github.run_number }}"
         tag_name: "build-${{ github.run_number }}"
+        draft: true
         files: artifacts/*
+    - name: Publish Release
+      uses: softprops/action-gh-release@v1
+      if:
+        contains('
+          refs/heads/main
+          refs/heads/master
+        ', github.ref)
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: "build-${{ github.run_number }}"
+        draft: true
     - name: Actions Status Discord
       uses: sarisia/actions-status-discord@v1.8.6
       if: always()
