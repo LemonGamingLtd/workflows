@@ -1,0 +1,81 @@
+name: Maven Build
+
+on:
+  workflow_call:
+    inputs:
+      java_version:
+        type: string
+        required: false
+        default: '17'
+      runs_on:
+        type: string
+        required: false
+        default: 'self-hosted'
+      artifact_folders:
+        type: string
+        required: true
+    secrets:
+      DISCORD_WEBHOOK:
+        description: "The discord webhook to post status to"
+        required: true
+      MAVEN_SETTINGS:
+        description: "The contents of the settings.xml file with credentials for the repo"
+        required: true
+
+jobs:
+  build:
+    runs-on: ${{inputs.runs_on}}
+    permissions:
+      contents: write
+
+    steps:
+    - name: Clean Workspace
+      uses: AutoModality/action-clean@v1.1.0
+    - uses: actions/checkout@v2
+    - name: Set up JDK ${{inputs.java_version}}
+      uses: actions/setup-java@v2
+      with:
+        java-version: '${{inputs.java_version}}'
+        distribution: 'adopt'
+
+    - name: Restore maven settings.xml
+      env:
+        MAVEN_SETTINGS: ${{ secrets.MAVEN_SETTINGS }}
+      shell: bash
+      run: |
+        mkdir -p ~/.m2/
+        echo "${MAVEN_SETTINGS}" > ~/.m2/settings.xml
+    - name: Build
+      run: |
+       ./mvnw install deploy --update-snapshots
+    - name: Move Artifacts
+      env:
+        FOLDERS: ${{inputs.artifact_folders}}
+      run: |
+        mkdir artifacts
+        for f in $FOLDERS; do
+          ls $f/target/*.jar | grep -v "^$f/target/original" | xargs cp -t artifacts || true
+        done
+    - name: Extract Build Variables
+      id: extract_variables
+      run: |
+        echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        echo "##[set-output name=project_version;]$(./mvnw -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)"
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if:
+        contains('
+          refs/heads/main
+          refs/heads/master
+        ', github.ref)
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        name: "${{ steps.extract_variables.outputs.branch }}-${{ steps.extract_variables.outputs.project_version }}-${{ github.run_number }}"
+        tag_name: "build-${{ github.run_number }}"
+        files: artifacts/*
+    - name: Actions Status Discord
+      uses: sarisia/actions-status-discord@v1.8.6
+      if: always()
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
