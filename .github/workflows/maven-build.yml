@@ -88,6 +88,11 @@ jobs:
         
     - name: Publish Release
       uses: eregon/publish-release@v1
+      if:
+        contains('
+          refs/heads/main
+          refs/heads/master
+        ', github.ref)
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
