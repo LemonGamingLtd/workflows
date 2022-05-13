@@ -44,7 +44,7 @@ jobs:
 
     - name: Build
       run: |
-        ./gradlew build publish --stacktrace --gradle-user-home ~/.gradle/
+        ./gradlew clean build publish --stacktrace --gradle-user-home ~/.gradle/
 
     - name: Move Artifacts
       env:
