@@ -55,7 +55,7 @@ jobs:
           if ls "$f/build/libs/"*"-all.jar" 1> /dev/null 2>&1; then
             # using shadow, only take the *-all.jar files
             cp "$f/build/libs/"*"-all.jar" artifacts/
-            rename -- "-all.jar" ".jar" artifacts/* # remove -all from the end of the jar names
+            /usr/bin/rename "s/-all.jar$/.jar/" artifacts/*.jar
           else
             # not using shadow, take any jar
             cp "$f/build/libs/"*".jar" artifacts/
