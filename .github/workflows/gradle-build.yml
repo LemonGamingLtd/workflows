@@ -50,7 +50,7 @@ jobs:
       env:
         FOLDERS: ${{inputs.artifact_folders}}
       run: |
-        mkdir artifacts
+        mkdir -p artifacts
         for f in $FOLDERS; do
           if ls "$f/build/libs/"*"-all.jar" 1> /dev/null 2>&1; then
             # using shadow, only take the *-all.jar files
