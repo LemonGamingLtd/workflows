@@ -83,6 +83,7 @@ jobs:
       with:
         name: "${{ steps.extract_variables.outputs.branch }}-${{ steps.extract_variables.outputs.project_version }}-${{ github.run_number }}"
         tag_name: "build-${{ github.run_number }}"
+        target_commitish: "${{ steps.extract_variables.outputs.branch }}"
         draft: true
         files: artifacts/*
         
